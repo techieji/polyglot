@@ -38,18 +38,12 @@ class Handler(BaseRequestHandler):
                 info(f"Echoing {self.data['from']}: {self.data}")
                 servers[self.data['from']].sendall(json.dumps(self.data).encode() + b'\n')
 
-    def server_close(self):
-        info('Shutting down server')
-        for x in servers.values():
-            x.sendall(json.dumps('stop'))
-        info('Server shutdown')
-
 try:
     info('Starting server...')
     with TCPServer((conf['HOST'], conf['PORT']), Handler) as server:
         server.serve_forever()
-except KeyboardInterrupt:
+finally:
     info('Shutting down server')
     for x in servers.values():
-        x.sendall(json.dumps('stop'))
+        x.sendall(json.dumps('stop').encode())
     info('Server shutdown.')
